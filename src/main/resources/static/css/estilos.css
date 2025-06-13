@@ -1,0 +1,177 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 4 jun 2025, 19:19:03
+    Author     : johan
+*/
+:root{
+  --rojo:#b71c1c;
+  --rojo-claro:#e53935;
+  --gris-oscuro:#424242;
+  --gris-claro:#eeeeee;
+  --blanco:#ffffff;
+  --negro:#000000;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+body{
+  font-family:"Segoe UI", Roboto, Arial, sans-serif;
+  line-height:1.6;
+  color:var(--gris-oscuro);
+  background:var(--gris-claro);
+  padding:90px 20px 0;
+}
+
+header{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:90px;
+  background:var(--rojo);
+  box-shadow:0 2px 4px rgba(0,0,0,.3);
+  z-index:10;
+}
+aside{
+  position:fixed;
+  top:90px;left:0;bottom:25px;
+  width:22%;
+  padding:1rem;
+  background:var(--gris-oscuro);
+  color:var(--blanco);
+  overflow-y:auto;
+}
+section{
+  position:fixed;
+  top:90px;left:22%;bottom:25px;
+  width:78%;
+  padding:2rem 1.5rem;
+  background:var(--blanco);
+  overflow-y:auto;
+}
+footer{
+  position:fixed;
+  bottom:0;left:0;
+  width:100%;height:25px;
+  background:var(--gris-oscuro);
+  color:var(--blanco);
+  text-align:center;
+  font-size:.8rem;
+  line-height:25px;
+}
+
+.nav-menu{
+  list-style:none;
+  display:flex;
+  gap:1rem;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+}
+.nav-menu-link{
+  color:var(--blanco);
+  text-decoration:none;
+  padding:.4rem .8rem;
+  border-radius:4px;
+  transition:background .3s;
+}
+.nav-menu-link:hover{
+  background:var(--rojo-claro);
+}
+
+h2{margin-bottom:.8rem}
+p{margin-bottom:1rem}
+figure{margin:1rem 0;text-align:center}
+figcaption{margin-top:.5rem;font-style:italic}
+tbody tr:nth-child(odd){background:var(--gris-claro)}
+tbody tr:nth-child(even){background:var(--blanco)}
+
+.galeria{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1rem;
+  align-items:start;
+}
+.galeria img{
+  width:100%;
+  height:auto;
+  border-radius:6px;
+}
+
+.mapa-container{
+  position:relative;
+  width:100%;
+  padding-bottom:56.25%; 
+  overflow:hidden;
+  border-radius:6px;
+}
+.mapa-container iframe{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  border:0;
+}
+
+.form-cita{
+  max-width:500px;
+  margin:auto;
+  padding:1.5rem;
+  background:var(--gris-claro);
+  border-radius:6px;
+  box-shadow:0 0 4px rgba(0,0,0,.1);
+}
+.form-cita label{
+  display:block;
+  margin-bottom:.6rem;
+  font-weight:600;
+}
+.form-cita input,
+.form-cita select,
+.form-cita textarea{
+  width:100%;
+  padding:.5rem;
+  margin-top:.2rem;
+  border:1px solid var(--gris-oscuro);
+  border-radius:4px;
+}
+.form-cita button{
+  margin-top:1rem;
+  background:var(--rojo);
+  color:var(--blanco);
+  border:none;
+  padding:.6rem 1.2rem;
+  border-radius:4px;
+  cursor:pointer;
+  transition:background .3s;
+}
+.form-cita button:hover{
+  background:var(--rojo-claro);
+}
+
+.form-contacto{max-width:420px;margin:auto;}
+
+.datos-contacto{
+  list-style:none;
+  padding-left:0;
+  margin-bottom:1.2rem;
+}
+.datos-contacto li{margin-bottom:.4rem}
+
+.redes{
+  display:flex;
+  gap:.8rem;
+  margin-top:.6rem;
+}
+.redes a{
+  padding:.4rem .8rem;
+  background:var(--rojo);
+  color:var(--blanco);
+  border-radius:4px;
+  text-decoration:none;
+  transition:background .3s;
+}
+.redes a:hover{background:var(--rojo-claro)}
