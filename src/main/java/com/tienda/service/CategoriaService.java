@@ -13,4 +13,10 @@ import com.tienda.domain.Categoria;
 public interface CategoriaService {
     //asigna el método para después implementarlo en el service lmpl (Read)
     public List<Categoria> getCategorias(boolean activos);
+    
+    public Categoria getCategoria(Categoria categoria);
+    
+    public void save(Categoria categoria);
+    
+    public void delete(Categoria categoria);
 }
