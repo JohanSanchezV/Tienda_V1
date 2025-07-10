@@ -3,10 +3,9 @@ package com.tienda.service.impl;
 import com.google.auth.Credentials;
 import com.google.auth.ServiceAccountSigner;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.Storage.SignUrlOption;
 import com.google.cloud.storage.StorageOptions;
 import com.tienda.service.FirebaseStorageService;
 import java.io.File;
@@ -18,58 +17,67 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Service
 public class FirebaseStorageServiceImpl implements FirebaseStorageService {
+
     @Override
-    public String cargaImagen(MultipartFile archivoLocalCliente, String carpeta, Long id) {
+    public String cargaImagen(MultipartFile archivo, String carpeta, Long id) {
         try {
-            // El nombre original del archivo local del cliene
-            String extension = archivoLocalCliente.getOriginalFilename();
+            // 1) Nombre único para el bucket
+            String original = archivo.getOriginalFilename();
+            String fileName = "img" + sacaNumero(id) + "_" + original;
 
-            // Se genera el nombre según el código del articulo. 
-            String fileName = "img" + sacaNumero(id) + extension;
+            // 2) Convertir MultipartFile a File temporal
+            File tmp = File.createTempFile("img", null);
+            try (FileOutputStream fos = new FileOutputStream(tmp)) {
+                fos.write(archivo.getBytes());
+            }
 
-            // Se convierte/sube el archivo a un archivo temporal
-            File file = this.convertToFile(archivoLocalCliente);
+            // 3) Subir a Firebase y obtener URL
+            String url = uploadFile(tmp, carpeta, fileName);
 
-            // se copia a Firestore y se obtiene el url válido de la imagen (por 10 años) 
-            String URL = this.uploadFile(file, carpeta, fileName);
+            // 4) Borrar el archivo temporal
+            tmp.delete();
 
-            // Se elimina el archivo temporal cargado desde el cliente
-            file.delete();
-
-            return URL;
+            return url;
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Error subiendo imagen a Firebase", e);
         }
     }
 
     private String uploadFile(File file, String carpeta, String fileName) throws IOException {
-        //Se define el lugar y acceso al archivo .jasper
-        ClassPathResource json = new ClassPathResource(rutaJsonFile + File.separator + archivoJsonFile);
-        BlobId blobId = BlobId.of(BucketName, rutaSuperiorStorage + "/" + carpeta + "/" + fileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
-        
-        Credentials credentials = GoogleCredentials.fromStream(json.getInputStream());
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        // 1) Cargar credenciales desde classpath: /<rutaJsonFile>/<archivoJsonFile>
+        ClassPathResource creds = new ClassPathResource(
+            rutaJsonFile + File.separator + archivoJsonFile
+        );
+        Credentials credentials = GoogleCredentials.fromStream(creds.getInputStream());
+
+        // 2) Inicializar cliente de Storage
+        Storage storage = StorageOptions.newBuilder()
+            .setCredentials(credentials)
+            .build()
+            .getService();
+
+        // 3) Definir destino en bucket
+        BlobId blobId = BlobId.of(
+            BucketName,
+            rutaSuperiorStorage + "/" + carpeta + "/" + fileName
+        );
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+            .setContentType(Files.probeContentType(file.toPath()))
+            .build();
+
+        // 4) Crear el blob
         storage.create(blobInfo, Files.readAllBytes(file.toPath()));
-        String url = storage.signUrl(blobInfo, 3650, TimeUnit.DAYS, SignUrlOption.signWith((ServiceAccountSigner) credentials)).toString();
-        return url;
+
+        // 5) Generar URL firmada (ej. 10 años)
+        return storage.signUrl(
+            blobInfo,
+            3650, TimeUnit.DAYS,
+            Storage.SignUrlOption.signWith((ServiceAccountSigner) credentials)
+        ).toString();
     }
 
-    //Método utilitario que convierte el archivo desde el equipo local del usuario a un archivo temporal en el servidor
-    private File convertToFile(MultipartFile archivoLocalCliente) throws IOException {
-        File tempFile = File.createTempFile("img", null);
-        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-            fos.write(archivoLocalCliente.getBytes());
-            fos.close();
-        }
-        return tempFile;
-    }
-
-    //Método utilitario para obtener un string con ceros....
     private String sacaNumero(long id) {
         return String.format("%019d", id);
     }
