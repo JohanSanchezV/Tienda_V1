@@ -36,7 +36,7 @@ public class ProjectConfig implements WebMvcConfigurer {
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         var lci = new LocaleChangeInterceptor();
-        lci.setParamName("lang");
+        lci.setParamName("lang"); 
         return lci;
     }
 
@@ -54,18 +54,18 @@ public class ProjectConfig implements WebMvcConfigurer {
         return messageSource;
     }
     
-    /* Los siguiente métodos son para implementar el tema de seguridad dentro del proyecto
-*/
+    /* Los siguiente métodos son para implementar el tema de seguridad dentro del proyecto */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/index").setViewName("index");
         registry.addViewController("/login").setViewName("login");
         registry.addViewController("/registro/nuevo").setViewName("/registro/nuevo");
-    }
-    @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            http
+ }
+
+@Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
                 .authorizeHttpRequests((request) -> request
                 .requestMatchers("/","/index","/errores/**",
                         "/carrito/**","/pruebas/**","/reportes/**",
@@ -79,7 +79,7 @@ public class ProjectConfig implements WebMvcConfigurer {
                         "/usuario/nuevo","/usuario/guardar",
                         "/usuario/modificar/**","/usuario/eliminar/**",
                         "/reportes/**"
-                        ).hasRole("ADMIN")
+                ).hasRole("ADMIN")
                 .requestMatchers(
                         "/producto/listado",
                         "/categoria/listado",
@@ -93,13 +93,13 @@ public class ProjectConfig implements WebMvcConfigurer {
                 .logout((logout) -> logout.permitAll());
         return http.build();
     }
-        
     @Autowired
     private UserDetailsService userDetailsService;
-    
+
     @Autowired
     public void configurerGlobal(AuthenticationManagerBuilder build) throws Exception {
         build.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
     }
+    
     
 }
