@@ -17,6 +17,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 
 @Configuration
 public class ProjectConfig implements WebMvcConfigurer {
@@ -66,31 +67,31 @@ public class ProjectConfig implements WebMvcConfigurer {
 @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((request) -> request
-                .requestMatchers("/","/index","/errores/**",
-                        "/carrito/**","/pruebas/**","/reportes/**",
-                        "/registro/**","/js/**","/webjars/**")
-                        .permitAll()
-                .requestMatchers(
-                        "/producto/nuevo","/producto/guardar",
-                        "/producto/modificar/**","/producto/eliminar/**",
-                        "/categoria/nuevo","/categoria/guardar",
-                        "/categoria/modificar/**","/categoria/eliminar/**",
-                        "/usuario/nuevo","/usuario/guardar",
-                        "/usuario/modificar/**","/usuario/eliminar/**",
-                        "/reportes/**"
-                ).hasRole("ADMIN")
-                .requestMatchers(
-                        "/producto/listado",
-                        "/categoria/listado",
-                        "/usuario/listado"
-                ).hasAnyRole("ADMIN", "VENDEDOR")
-                .requestMatchers("/facturar/carrito")
-                .hasRole("USER")
-                )
-                .formLogin((form) -> form
-                .loginPage("/login").permitAll())
-                .logout((logout) -> logout.permitAll());
+          .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/","/index","/login",
+                             "/errores/**","/error","/error/**",
+                             "/registro/**","/js/**","/webjars/**",
+                             "/favicon.ico").permitAll()
+            // SOLO una regla para /reportes/**
+            .requestMatchers("/reportes/**").hasAnyRole("ADMIN","USER","VENDEDOR")
+            .requestMatchers(
+                "/producto/nuevo","/producto/guardar",
+                "/producto/modificar/**","/producto/eliminar/**",
+                "/categoria/nuevo","/categoria/guardar",
+                "/categoria/modificar/**","/categoria/eliminar/**",
+                "/usuario/nuevo","/usuario/guardar",
+                "/usuario/modificar/**","/usuario/eliminar/**"
+            ).hasRole("ADMIN")
+            .requestMatchers(
+                "/producto/listado",
+                "/categoria/listado",
+                "/usuario/listado"
+            ).hasAnyRole("ADMIN","VENDEDOR")
+            .requestMatchers("/facturar/carrito").hasRole("USER")
+            .anyRequest().authenticated()
+          )
+          .formLogin(form -> form.loginPage("/login").permitAll())
+          .logout(logout -> logout.permitAll());
         return http.build();
     }
     @Autowired
